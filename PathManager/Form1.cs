@@ -101,15 +101,6 @@ public partial class Form1 : Form
         ContentTabControl.TabPages.Add(tabPage);
     }
 
-    private void deleteSelectedTabToolStripMenuItem_Click(object sender, EventArgs e)
-    {
-        if (ContentTabControl.SelectedTab is null)
-        {
-            return;
-        }
-        ContentTabControl.TabPages.Remove(ContentTabControl.SelectedTab);
-    }
-
     private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
     {
         Controls.SettingsForm settingsForm = new Controls.SettingsForm();
