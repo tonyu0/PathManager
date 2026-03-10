@@ -12,8 +12,10 @@ public class AppData
 {
     public class SettingsSaveData
     {
-        [JsonPropertyName("app_title_name")]
-        public string AppTitleName { get; set; } = "Path Manager";
+        [JsonPropertyName("sort_by_last_opened")]
+        public bool SortByLastOpened { get; set; } = false;
+        [JsonPropertyName("show_favorites_first")]
+        public bool ShowFavoritesFirst { get; set; } = true;
     }
 
     public class ContentsSaveData

@@ -16,7 +16,7 @@ namespace PathManager.Controls
         {
             InitializeComponent();
         }
-
-        public string AppTitleName { get { return AppTitleNameTextBox.Text; } set { AppTitleNameTextBox.Text = value; } }
+        public bool SortByLastOpened { get { return SortByLastOpenedCheckBox.Checked; } set { SortByLastOpenedCheckBox.Checked = value; } }
+        public bool ShowFavoritesFirst { get { return ShowFavoritesFirstCheckBox.Checked;} set { ShowFavoritesFirstCheckBox.Checked = value; }  }
     }
 }

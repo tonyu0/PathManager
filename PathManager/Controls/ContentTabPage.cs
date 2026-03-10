@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Data;
 using PathManager.Utils;
 
 namespace PathManager.Controls;
@@ -9,8 +10,16 @@ public partial class ContentTabPage : UserControl
     {
         get
         {
-            //return PathItemBindingSource.List.Cast<PathItem>().ToList();
-            return _fullList;
+            // Use LINQ
+            List<PathItem> fullList = _displayDataTable.AsEnumerable().Select(row => new PathItem
+            {
+                Path = row.Field<string>("Path") ?? string.Empty,
+                Note = row.Field<string>("Note") ?? string.Empty,
+                LastOpenedAt = row.Field<DateTime>("LastOpenedAt"),
+                IsFavorite = row.Field<bool>("IsFavorite")
+            }).ToList();
+
+            return fullList;
         }
 
         set
@@ -20,23 +29,53 @@ public partial class ContentTabPage : UserControl
                 return;
             }
 
-            //PathItemBindingSource.Clear();
-            _fullList.Clear();
-            _displayList.Clear();
-            foreach (PathItem pathItem in value)
-            {
-                //PathItemBindingSource.Add(Path);
-                _fullList.Add(pathItem);
-                _displayList.Add(pathItem);
-            }
-            _displayList.ResetBindings();
+            _displayDataTable = ToDataTable(value);
         }
     }
 
-    // Lists for filtering: _fullList has all data of this tab, and _displayList has displayed data.
-    // As implementing path filter, it becomes necessary to manage two lists because not all data is necessarily displayed
-    private List<PathItem> _fullList = new();
-    private BindingList<PathItem> _displayList = new();
+    // Helper: make use of reflection to convert List<T> to DataTable
+    public static DataTable ToDataTable<T>(List<T> items)
+    {
+        DataTable dt = new DataTable(typeof(T).Name);
+        var properties = typeof(T).GetProperties();
+
+        // Create columns
+        properties.ToList().ForEach(x => dt.Columns.Add(x.Name, x.PropertyType));
+
+        // Add rows
+        foreach (var item in items)
+        {
+            var values = new object[properties.Length];
+            for (int i = 0; i < properties.Length; i++)
+            {
+                values[i] = properties[i].GetValue(item) ?? DBNull.Value;
+            }
+            dt.Rows.Add(values);
+        }
+        return dt;
+    }
+
+    public void UpdateDataGridViewSettings(AppData.SettingsSaveData settings)
+    {
+        string sortMode = "";
+        if (settings.ShowFavoritesFirst && settings.SortByLastOpened)
+        {
+            sortMode = "IsFavorite DESC, LastOpenedAt DESC";
+        } else if (settings.ShowFavoritesFirst)
+        {
+            sortMode = "IsFavorite DESC";
+        } else if(settings.SortByLastOpened)
+        {
+            sortMode = "LastOpenedAt DESC";
+        }
+
+        if (DataGridView.DataSource is DataTable dt)
+        {
+            dt.DefaultView.Sort = sortMode;
+        }
+    }
+
+    DataTable _displayDataTable = new();
 
 
     public ContentTabPage()
@@ -46,21 +85,25 @@ public partial class ContentTabPage : UserControl
 
     private void AddRowButton_Click(object sender, EventArgs e)
     {
-        //PathItemBindingSource.Add(new Utils.PathItem());
-        var newItem = new PathItem();
-        _fullList.Add(newItem);
-        _displayList.Add(newItem);
-        _displayList.ResetBindings();
+        // nearly same as adding row part of ToDataTable() (need to make another function?)
+        // need to create a row from PathItem because LastOpenedAt(DateTime) is non-nullable
+        var newPathItem = new PathItem();
+        var properties = typeof(PathItem).GetProperties();
+
+        var values = new object[properties.Length];
+        for (int i = 0; i < properties.Length; i++)
+        {
+            values[i] = properties[i].GetValue(newPathItem) ?? DBNull.Value;
+        }
+
+        _displayDataTable.Rows.Add(values);
     }
 
     private void RemoveRowButton_Click(object sender, EventArgs e)
     {
-        if (DataGridView.CurrentRow?.DataBoundItem is PathItem selectedItem)
+        if (DataGridView.CurrentRow?.DataBoundItem is DataRowView row)
         {
-            // Be careful to delete the target data even while filtering
-            _fullList.Remove(selectedItem);
-            _displayList.Remove(selectedItem);
-            _displayList.ResetBindings();
+            row.Delete();
         }
     }
 
@@ -71,15 +114,17 @@ public partial class ContentTabPage : UserControl
         {
             if (dataGridView.Columns[e.ColumnIndex].CellType == typeof(DataGridViewButtonCell))
             {
-                //PathItem pathItem = ((Utils.PathItem)PathItemBindingSource[e.RowIndex]);
-                var pathItem = _displayList[e.RowIndex];
-
-                if(OpenPath(pathItem.Path))
+                if (DataGridView.CurrentRow?.DataBoundItem is DataRowView rowView)
                 {
-                    _displayList[e.RowIndex].LastOpenedAt = DateTime.Now;
-                    _displayList.ResetBindings();
-                }
+                    //var row = _displayDataTable.Rows[e.RowIndex]; // if using search filter, e.RowIndex is misaligned with the displayed order
+                    var row = rowView.Row;
+                    string path = row.Field<string>("Path") ?? string.Empty;
 
+                    if (OpenPath(path))
+                    {
+                        row["LastOpenedAt"] = DateTime.Now;
+                    }
+                }
             }
         }
     }
@@ -146,32 +191,24 @@ public partial class ContentTabPage : UserControl
 
     private void FilterTextBox_TextChanged(object sender, EventArgs e)
     {
-        string filterText = FilterTextBox.Text.ToLower();
-
-        // 1. Clear the list for display
-        _displayList.RaiseListChangedEvents = false; // Pause drawing update to speed up
-        _displayList.Clear();
-
-        // 2. filtering and add to the list for display again
-        var filtered = _fullList.Where(item =>
-            item.Path.ToLower().Contains(filterText) ||
-            item.Note.ToLower().Contains(filterText)
-        );
-
-        foreach (var item in filtered)
-        {
-            _displayList.Add(item);
-        }
-
-        _displayList.RaiseListChangedEvents = true;
-        _displayList.ResetBindings(); // reflesh for drawing
+        string filterText = string.Format("Path LIKE '%{0}%'", FilterTextBox.Text.ToLower().Replace("'", "")); // crash if single quotation exists
+        _displayDataTable.DefaultView.RowFilter = filterText;
     }
 
     private void ContentTabPage_Load(object sender, EventArgs e)
     {
-        DataGridView.DataSource = _displayList;
+        DataGridView.DataSource = _displayDataTable;
+        DataGridView.Columns["LastOpenedAt"].ReadOnly = true;
+        DataGridView.Columns["LastOpenedAt"].FillWeight = 5.0f;
+        DataGridView.Columns["IsFavorite"].FillWeight = 2.0f;
+        DataGridView.Columns["IsFavorite"].HeaderText = "★";
+        DataGridView.Columns["IsFavorite"].HeaderCell.Style.Alignment = DataGridViewContentAlignment.MiddleCenter;
+        DataGridView.Columns["Note"].FillWeight = 7.0f;
+        DataGridView.Columns["Path"].FillWeight = 25.0f;
 
-        //DataGridView.Sort(DataGridView.Columns["IsFavorite"], System.ComponentModel.ListSortDirection.Descending);
-        //DataGridView.Sort(DataGridView.Columns["LastOpenedAt"], System.ComponentModel.ListSortDirection.Descending);
+        if (ParentForm is Form1 form)
+        {
+            UpdateDataGridViewSettings(form.AppData.Settings);
+        }
     }
 }

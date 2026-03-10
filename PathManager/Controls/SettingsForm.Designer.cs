@@ -32,8 +32,8 @@
             SettingsCancelButton = new Button();
             TabControl1 = new TabControl();
             TabPage1 = new TabPage();
-            label1 = new Label();
-            AppTitleNameTextBox = new TextBox();
+            ShowFavoritesFirstCheckBox = new CheckBox();
+            SortByLastOpenedCheckBox = new CheckBox();
             TabControl1.SuspendLayout();
             TabPage1.SuspendLayout();
             SuspendLayout();
@@ -71,8 +71,8 @@
             // 
             // TabPage1
             // 
-            TabPage1.Controls.Add(label1);
-            TabPage1.Controls.Add(AppTitleNameTextBox);
+            TabPage1.Controls.Add(SortByLastOpenedCheckBox);
+            TabPage1.Controls.Add(ShowFavoritesFirstCheckBox);
             TabPage1.Location = new Point(4, 24);
             TabPage1.Name = "TabPage1";
             TabPage1.Padding = new Padding(3);
@@ -81,21 +81,25 @@
             TabPage1.Text = "Setting1";
             TabPage1.UseVisualStyleBackColor = true;
             // 
-            // label1
+            // ShowFavoritesFirstCheckBox
             // 
-            label1.AutoSize = true;
-            label1.Location = new Point(6, 3);
-            label1.Name = "label1";
-            label1.Size = new Size(91, 15);
-            label1.TabIndex = 1;
-            label1.Text = "App Title Name ";
+            ShowFavoritesFirstCheckBox.AutoSize = true;
+            ShowFavoritesFirstCheckBox.Location = new Point(6, 31);
+            ShowFavoritesFirstCheckBox.Name = "ShowFavoritesFirstCheckBox";
+            ShowFavoritesFirstCheckBox.Size = new Size(125, 19);
+            ShowFavoritesFirstCheckBox.TabIndex = 3;
+            ShowFavoritesFirstCheckBox.Text = "Show favorites first";
+            ShowFavoritesFirstCheckBox.UseVisualStyleBackColor = true;
             // 
-            // AppTitleNameTextBox
+            // SortByLastOpenedCheckBox
             // 
-            AppTitleNameTextBox.Location = new Point(6, 21);
-            AppTitleNameTextBox.Name = "AppTitleNameTextBox";
-            AppTitleNameTextBox.Size = new Size(169, 23);
-            AppTitleNameTextBox.TabIndex = 0;
+            SortByLastOpenedCheckBox.AutoSize = true;
+            SortByLastOpenedCheckBox.Location = new Point(6, 6);
+            SortByLastOpenedCheckBox.Name = "SortByLastOpenedCheckBox";
+            SortByLastOpenedCheckBox.Size = new Size(131, 19);
+            SortByLastOpenedCheckBox.TabIndex = 3;
+            SortByLastOpenedCheckBox.Text = "Sort by last updated";
+            SortByLastOpenedCheckBox.UseVisualStyleBackColor = true;
             // 
             // SettingsForm
             // 
@@ -119,7 +123,7 @@
         private Button SettingsCancelButton;
         private TabControl TabControl1;
         private TabPage TabPage1;
-        private Label label1;
-        private TextBox AppTitleNameTextBox;
+        private CheckBox ShowFavoritesFirstCheckBox;
+        private CheckBox SortByLastOpenedCheckBox;
     }
 }

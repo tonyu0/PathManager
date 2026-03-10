@@ -15,7 +15,7 @@ public partial class Form1 : Form
 
     private string GetAppDataFilename()
     {
-        return System.IO.Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location) + @"\appdata.json";
+        return System.AppContext.BaseDirectory + @"\appdata.json";
     }
 
     public Form1()
@@ -32,13 +32,7 @@ public partial class Form1 : Form
             foreach (AppData.ContentsSaveData Save in AppData.TabContentList)
             {
                 AddTab(Save.TabTitle, Save.PathItemList);
-            }
-
-            // Load settings data
-            if (!string.IsNullOrEmpty(AppData.Settings.AppTitleName))
-            {
-                Text = AppData.Settings.AppTitleName;
-            }
+            }            
         }
         catch (Exception Exc)
         {
@@ -90,8 +84,6 @@ public partial class Form1 : Form
             return;
         }
 
-        // ContentTabPage is managed by BindingSource.
-        // Creating new empty TabPage and Setting ContentTabPage to the TabPage's Controls, each BindingSource can manage each Tab data.
         TabPage tabPage = new TabPage(tabTitle);
         Controls.ContentTabPage newContentTabPage = new Controls.ContentTabPage();
         newContentTabPage.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
@@ -103,16 +95,18 @@ public partial class Form1 : Form
 
     private void settingsToolStripMenuItem_Click(object sender, EventArgs e)
     {
-        Controls.SettingsForm settingsForm = new Controls.SettingsForm();
-        settingsForm.AppTitleName = AppData.Settings.AppTitleName;
+        Controls.SettingsForm settingsForm = new();
+        settingsForm.SortByLastOpened = AppData.Settings.SortByLastOpened;
+        settingsForm.ShowFavoritesFirst = AppData.Settings.ShowFavoritesFirst;
 
-        if(settingsForm.ShowDialog() == DialogResult.OK)
+        if (settingsForm.ShowDialog() == DialogResult.OK)
         {
             // save settings
-            if(!string.IsNullOrEmpty(settingsForm.AppTitleName))
+            AppData.Settings.SortByLastOpened = settingsForm.SortByLastOpened;
+            AppData.Settings.ShowFavoritesFirst = settingsForm.ShowFavoritesFirst;
+            if (ContentTabControl.SelectedTab?.Controls[0] is Controls.ContentTabPage tabPage)
             {
-                AppData.Settings.AppTitleName = settingsForm.AppTitleName;
-                Text = AppData.Settings.AppTitleName;
+                tabPage.UpdateDataGridViewSettings(AppData.Settings);
             }
         }
     }

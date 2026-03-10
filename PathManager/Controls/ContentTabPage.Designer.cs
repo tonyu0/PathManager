@@ -131,7 +131,7 @@
             // 
             // RefBtn
             // 
-            RefBtn.FillWeight = 20F;
+            RefBtn.FillWeight = 2F;
             RefBtn.HeaderText = "";
             RefBtn.Name = "RefBtn";
             RefBtn.Text = "Open";
