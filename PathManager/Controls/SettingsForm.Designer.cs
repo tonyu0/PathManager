@@ -32,8 +32,8 @@
             SettingsCancelButton = new Button();
             TabControl1 = new TabControl();
             TabPage1 = new TabPage();
-            ShowFavoritesFirstCheckBox = new CheckBox();
             SortByLastOpenedCheckBox = new CheckBox();
+            ShowFavoritesFirstCheckBox = new CheckBox();
             TabControl1.SuspendLayout();
             TabPage1.SuspendLayout();
             SuspendLayout();
@@ -81,6 +81,16 @@
             TabPage1.Text = "Setting1";
             TabPage1.UseVisualStyleBackColor = true;
             // 
+            // SortByLastOpenedCheckBox
+            // 
+            SortByLastOpenedCheckBox.AutoSize = true;
+            SortByLastOpenedCheckBox.Location = new Point(6, 6);
+            SortByLastOpenedCheckBox.Name = "SortByLastOpenedCheckBox";
+            SortByLastOpenedCheckBox.Size = new Size(127, 19);
+            SortByLastOpenedCheckBox.TabIndex = 3;
+            SortByLastOpenedCheckBox.Text = "Sort by last opened";
+            SortByLastOpenedCheckBox.UseVisualStyleBackColor = true;
+            // 
             // ShowFavoritesFirstCheckBox
             // 
             ShowFavoritesFirstCheckBox.AutoSize = true;
@@ -90,16 +100,6 @@
             ShowFavoritesFirstCheckBox.TabIndex = 3;
             ShowFavoritesFirstCheckBox.Text = "Show favorites first";
             ShowFavoritesFirstCheckBox.UseVisualStyleBackColor = true;
-            // 
-            // SortByLastOpenedCheckBox
-            // 
-            SortByLastOpenedCheckBox.AutoSize = true;
-            SortByLastOpenedCheckBox.Location = new Point(6, 6);
-            SortByLastOpenedCheckBox.Name = "SortByLastOpenedCheckBox";
-            SortByLastOpenedCheckBox.Size = new Size(131, 19);
-            SortByLastOpenedCheckBox.TabIndex = 3;
-            SortByLastOpenedCheckBox.Text = "Sort by last updated";
-            SortByLastOpenedCheckBox.UseVisualStyleBackColor = true;
             // 
             // SettingsForm
             // 

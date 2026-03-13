@@ -61,10 +61,12 @@ public partial class ContentTabPage : UserControl
         if (settings.ShowFavoritesFirst && settings.SortByLastOpened)
         {
             sortMode = "IsFavorite DESC, LastOpenedAt DESC";
-        } else if (settings.ShowFavoritesFirst)
+        }
+        else if (settings.ShowFavoritesFirst)
         {
             sortMode = "IsFavorite DESC";
-        } else if(settings.SortByLastOpened)
+        }
+        else if (settings.SortByLastOpened)
         {
             sortMode = "LastOpenedAt DESC";
         }
@@ -209,6 +211,44 @@ public partial class ContentTabPage : UserControl
         if (ParentForm is Form1 form)
         {
             UpdateDataGridViewSettings(form.AppData.Settings);
+        }
+    }
+
+    private void MoveTabRight_Click(object sender, EventArgs e)
+    {
+        if (Parent?.Parent is TabControl contentTabControl)
+        {
+            // Check if selected index is not rightmost and a tab is selected (!= -1)
+            if (contentTabControl.SelectedIndex < contentTabControl.TabCount - 1 && contentTabControl.SelectedIndex != -1)
+            {
+                if (contentTabControl.SelectedTab is TabPage selectedTab)
+                {
+                    int selectedTabIndex = contentTabControl.SelectedIndex;
+
+                    contentTabControl.TabPages.Remove(selectedTab);
+                    contentTabControl.TabPages.Insert(selectedTabIndex + 1, selectedTab);
+                    contentTabControl.SelectedIndex = selectedTabIndex + 1;
+                }
+            }
+        }
+    }
+
+    private void MoveTabLeft_Click(object sender, EventArgs e)
+    {
+        if (Parent?.Parent is TabControl contentTabControl)
+        {
+            // Check if selected index is not leftmost and a tab is selected (!= -1)
+            if( contentTabControl.SelectedIndex > 0 )
+            {
+                if(contentTabControl.SelectedTab is TabPage selectedTab)
+                {
+                    int selectedTabIndex = contentTabControl.SelectedIndex;
+
+                    contentTabControl.TabPages.Remove(selectedTab);
+                    contentTabControl.TabPages.Insert(selectedTabIndex - 1, selectedTab);
+                    contentTabControl.SelectedIndex = selectedTabIndex - 1;
+                }
+            }
         }
     }
 }
